@@ -45,7 +45,9 @@
     "lint": "eslint lib example certification test",
     "lint-ts": "npx typescript@~3.6.0 --build types",
     "lint-fix": "eslint lib example certification test --fix",
-    "test": "node ./test/run"
+    "test": "node ./test/run",
+    "dev": "node --watch example/express.js",
+    "front": "http-server ../"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",
@@ -53,6 +55,7 @@
     "debug": "^4.1.1",
     "ejs": "^3.0.1",
     "got": "^9.6.0",
+    "helmet": "^7.1.0",
     "jose": "^1.23.0",
     "jsesc": "^2.5.2",
     "koa": "^2.11.0",
@@ -77,6 +80,7 @@
     "eslint-plugin-import": "^2.20.1",
     "express": "^4.17.1",
     "fastify": "^2.12.0",
+    "http-server": "^14.1.1",
     "https-pem": "^2.0.0",
     "husky": "^4.2.1",
     "koa-body": "^4.1.1",

@@ -3,6 +3,11 @@ const logins = new Map();
 const nanoid = require('nanoid');
 
 class Account {
+  /**
+   * 初始化Account账号，id不存在默认用nanoid随机id，并存储在Map中
+   * @param id
+   * @param profile
+   */
   constructor(id, profile) {
     this.accountId = id || nanoid();
     this.profile = profile;
@@ -70,6 +75,11 @@ class Account {
     return logins.get(id);
   }
 
+  /**
+   * 查找登录账号
+   * @param login
+   * @return {Promise<any>}
+   */
   static async findByLogin(login) {
     if (!logins.get(login)) {
       logins.set(login, new Account(login));

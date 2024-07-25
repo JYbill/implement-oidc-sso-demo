@@ -25,6 +25,11 @@ const models = require('./models');
 const nanoid = require('./helpers/nanoid');
 const ssHandler = require('./helpers/samesite_handler');
 
+/**
+ * 断言req一定是HttpRequest类型，res一定是ServerResponse类型
+ * @param req
+ * @param res
+ */
 function assertReqRes(req, res) {
   assert(
     req instanceof IncomingMessage || req instanceof Http2ServerRequest,
@@ -38,14 +43,23 @@ function assertReqRes(req, res) {
   }
 }
 
+/**
+ * 获取交互信息
+ * @param req
+ * @param res
+ * @return {Promise<unknown>}
+ */
 async function getInteraction(req, res) {
-  assertReqRes.apply(undefined, arguments); // eslint-disable-line prefer-spread, prefer-rest-params
+  // 断言req、res
+  assertReqRes.apply(undefined, arguments);// eslint-disable-line prefer-spread, prefer-rest-params
   const ctx = this.app.createContext(req, res);
   const id = ssHandler.get(
     ctx.cookies,
     this.cookieName('interaction'),
     instance(this).configuration('cookies.short'),
   );
+
+  // session未记录过
   if (!id) {
     throw new SessionNotFound('interaction session id cookie not found');
   }
@@ -85,6 +99,11 @@ class Provider extends events.EventEmitter {
 
     const configuration = new Configuration(setup);
 
+    /**
+     * 构造Provide.configuration()方法，用于根据path获取配置项
+     * @param path
+     * @return {unknown|Configuration}
+     */
     instance(this).configuration = (path) => {
       if (path) return get(configuration, path);
       return configuration;
@@ -185,6 +204,7 @@ class Provider extends events.EventEmitter {
   }
 
   /**
+   * 获取交互并对交互结果进行插入数据，最终返回重定向地址
    * @name interactionResult
    * @api public
    */
@@ -203,7 +223,14 @@ class Provider extends events.EventEmitter {
   }
 
   /**
+   * 交互结束工具
+   * 1.
+   * 2. 响应302重定向到`returnTo`
    * @name interactionFinished
+   * @param req
+   * @param res
+   * @param result
+   * @param mergeWithLastSubmission {boolean} 与上次提交合并
    * @api public
    */
   async interactionFinished(req, res, result, { mergeWithLastSubmission = true } = {}) {

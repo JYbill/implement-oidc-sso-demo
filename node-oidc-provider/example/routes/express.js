@@ -47,10 +47,14 @@ module.exports = (app, provider) => {
   app.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
       const {
-        uid, prompt, params, session,
+        uid,
+        prompt,
+        params, // GET请求的参数
+        session,
       } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id);
+      console.log('prompt', prompt);
 
       switch (prompt.name) {
         case 'select_account': {
@@ -75,6 +79,8 @@ module.exports = (app, provider) => {
             },
           });
         }
+
+        // 第一次登录操作：渲染登录页面
         case 'login': {
           return res.render('login', {
             client,
@@ -89,6 +95,8 @@ module.exports = (app, provider) => {
             },
           });
         }
+
+        // 用户确认授权操作：渲染interaction.ejs页面
         case 'consent': {
           return res.render('interaction', {
             client,
@@ -111,10 +119,13 @@ module.exports = (app, provider) => {
     }
   });
 
+  /**
+   * 登录页面提交登录接口
+   */
   app.post('/interaction/:uid/login', setNoCache, body, async (req, res, next) => {
     try {
       const { prompt: { name } } = await provider.interactionDetails(req, res);
-      assert.equal(name, 'login');
+      assert.equal(name, 'login'); // 这里只有在用户提交的prompt为'login'时，才能继续执行
       const account = await Account.findByLogin(req.body.login);
 
       const result = {
@@ -154,6 +165,10 @@ module.exports = (app, provider) => {
     }
   });
 
+
+  /**
+   * interaction.ejs进行授权完成后，提交到接口
+   */
   app.post('/interaction/:uid/confirm', setNoCache, body, async (req, res, next) => {
     try {
       const { prompt: { name, details } } = await provider.interactionDetails(req, res);
@@ -181,12 +196,16 @@ module.exports = (app, provider) => {
     }
   });
 
+  /**
+   * 拒绝授权
+   */
   app.get('/interaction/:uid/abort', setNoCache, async (req, res, next) => {
     try {
       const result = {
         error: 'access_denied',
         error_description: 'End-User aborted interaction',
       };
+      // 失败信息写入interaction交互对象
       await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
