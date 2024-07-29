@@ -36,7 +36,7 @@ module.exports = (provider) => class RefreshToken extends apply([
 
   /*
    * totalLifetime()
-   * number of seconds since the very first refresh token chain iat
+   * 当前时间 - jwt令牌签发时间 = 返回结果:剩余时间(s)
    */
   totalLifetime() {
     return epochTime() - this.iiat;

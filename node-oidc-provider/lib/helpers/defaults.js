@@ -29,14 +29,12 @@ function mustChange(name, msg) {
 
 const DEFAULTS = {
 
-
   /*
    * acrValues
    *
    * description: Array of strings, the Authentication Context Class References that OP supports.
    */
   acrValues: [],
-
 
   /*
    * adapter
@@ -69,7 +67,6 @@ const DEFAULTS = {
    * @nodefault
    */
   adapter: MemoryAdapter,
-
 
   /*
    * claims
@@ -170,7 +167,6 @@ const DEFAULTS = {
     token_endpoint_auth_method: 'client_secret_basic',
   },
 
-
   /*
    * clockTolerance
    *
@@ -182,7 +178,6 @@ const DEFAULTS = {
    *   else is wrong.
    */
   clockTolerance: 0,
-
 
   /*
    * conformIdTokenClaims
@@ -197,7 +192,6 @@ const DEFAULTS = {
    *
    */
   conformIdTokenClaims: true,
-
 
   /*
    * cookies
@@ -257,7 +251,6 @@ const DEFAULTS = {
     keys: [],
   },
 
-
   /*
    * discovery
    *
@@ -273,7 +266,6 @@ const DEFAULTS = {
     ui_locales_supported: undefined,
   },
 
-
   /*
    * extraParams
    *
@@ -282,7 +274,6 @@ const DEFAULTS = {
    *   available in `ctx.oidc.params` as well as passed to interaction session details
    */
   extraParams: [],
-
 
   /*
    * features
@@ -381,7 +372,6 @@ const DEFAULTS = {
      *
      */
     ietfJWTAccessTokenProfile: { enabled: false },
-
 
     /*
      * features.mTLS
@@ -634,7 +624,6 @@ const DEFAULTS = {
           </html>`;
       },
 
-
       /*
        * features.deviceFlow.userCodeConfirmSource
        *
@@ -681,7 +670,6 @@ const DEFAULTS = {
           </body>
           </html>`;
       },
-
 
       /*
        * features.deviceFlow.successSource
@@ -827,7 +815,6 @@ const DEFAULTS = {
      *
      */
     jwtIntrospection: { enabled: false },
-
 
     /*
      * features.jwtResponseModes
@@ -1253,7 +1240,6 @@ const DEFAULTS = {
       enabled: true,
     },
 
-
     /*
      * features.jwtUserinfo
      *
@@ -1505,11 +1491,10 @@ const DEFAULTS = {
     return !token.scopes.has('offline_access');
   },
 
-
   /*
    * issueRefreshToken
    *
-   * description: Function used to decide whether a refresh token will be issued or not
+   * description: 用于决定是否签发刷新令牌的函数
    *
    * example: To always issue a refresh tokens ...
    * ... if a client has the grant whitelisted and scope includes offline_access or the client is a
@@ -1528,7 +1513,6 @@ const DEFAULTS = {
   issueRefreshToken: async function issueRefreshToken(ctx, client, code) {
     return client.grantTypeAllowed('refresh_token') && code.scopes.has('offline_access');
   },
-
 
   /*
    * jwks
@@ -1588,7 +1572,6 @@ const DEFAULTS = {
    */
   jwks: DEV_KEYSTORE,
 
-
   /*
    * responseTypes
    *
@@ -1625,7 +1608,6 @@ const DEFAULTS = {
    */
   pkceMethods: ['S256'],
 
-
   /*
    * routes
    *
@@ -1646,14 +1628,12 @@ const DEFAULTS = {
     userinfo: '/me',
   },
 
-
   /*
    * scopes
    *
    * description: Array of the scope values that the OP supports
    */
   scopes: ['openid', 'offline_access'],
-
 
   /*
    * dynamicScopes
@@ -1674,7 +1654,6 @@ const DEFAULTS = {
    */
   dynamicScopes: [],
 
-
   /*
    * subjectTypes
    *
@@ -1684,7 +1663,6 @@ const DEFAULTS = {
    *   - `pairwise`
    */
   subjectTypes: ['public'],
-
 
   /*
    * pairwiseIdentifier
@@ -1704,11 +1682,9 @@ const DEFAULTS = {
       .digest('hex');
   },
 
-
   /*
    * tokenEndpointAuthMethods
-   *
-   * description: Array of Client Authentication methods supported by this OP's Token Endpoint
+   * description: 令牌支持的客户端身份验证方法数组
    * example: Supported values list
    * ```js
    * [
@@ -1726,7 +1702,6 @@ const DEFAULTS = {
     'client_secret_post',
     'private_key_jwt',
   ],
-
 
   /*
    * ttl
@@ -1778,7 +1753,6 @@ const DEFAULTS = {
       return 14 * 24 * 60 * 60; // 14 days in seconds
     },
   },
-
 
   /*
    * extraClientMetadata
@@ -1901,7 +1875,6 @@ const DEFAULTS = {
       </html>`;
   },
 
-
   /*
    * logoutSource
    *
@@ -1934,7 +1907,6 @@ const DEFAULTS = {
       </html>`;
   },
 
-
   /*
    * renderError
    *
@@ -1961,7 +1933,6 @@ const DEFAULTS = {
       </body>
       </html>`;
   },
-
 
   /*
    * interactions
@@ -2054,7 +2025,6 @@ const DEFAULTS = {
     },
   },
 
-
   /*
    * audiences
    *
@@ -2074,7 +2044,6 @@ const DEFAULTS = {
     //   depending on where the specific audience is intended to be allowed
     return undefined;
   },
-
 
   /*
    * findAccount
@@ -2106,44 +2075,38 @@ const DEFAULTS = {
     };
   },
 
-
   /*
    * rotateRefreshToken
    *
-   * description: Configures if and how the OP rotates refresh tokens after they are used. Supported
-   *   values are
-   *   - `false` refresh tokens are not rotated and their initial expiration date is final
-   *   - `true` refresh tokens are rotated when used, current token is marked as
-   *     consumed and new one is issued with new TTL, when a consumed refresh token is
-   *     encountered an error is returned instead and the whole token chain (grant) is revoked
-   *   - `function` returning true/false, true when rotation should occur, false when it shouldn't
+   * description: 描述OP在颁发令牌后如何刷新令牌
+   *   - `false` 不刷新令牌，令牌到截止事件就过期
+   *   - `true` 刷新令牌在使用时被轮换，当前令牌被标记为已消耗，并颁发新的令牌设置新的TTL过期时间。当使用过期令牌时将会返回错误，并清空撤销掉整个令牌链
+   *   - `function` 返回false不刷新，返回true则进行刷新
    *
    * <br/><br/>
    *
-   * The default configuration value puts forth a sensible refresh token rotation policy
-   *   - only allows refresh tokens to be rotated (have their TTL prolonged by issuing a new one) for one year
-   *   - otherwise always rotate public client tokens that are not sender-constrained
-   *   - otherwise only rotate tokens if they're being used close to their expiration (>= 70% TTL passed)
+   * 默认配置值提出了合理的刷新令牌轮换策略
+   *   - 只允许在一年内轮换刷新令牌
+   *   - 否则，始终刷新不受发送者限制的`公共客户端令牌`
+   *   - 否则，当超过剩余时间的70%后，刷新令牌
    */
   rotateRefreshToken: function rotateRefreshToken(ctx) {
     const { RefreshToken: refreshToken, Client: client } = ctx.oidc.entities;
 
-    // cap the maximum amount of time a refresh token can be
-    // rotated for up to 1 year, afterwards its TTL is final
     /* istanbul ignore if */
+    // 当刷新令牌的剩余存活时间(s)大于一年时，将不会刷新令牌
     if (refreshToken.totalLifetime() >= 365.25 * 24 * 60 * 60) {
       return false;
     }
 
-    // rotate non sender-constrained public client refresh tokens
+    // 始终刷新不受发送者限制的`公共客户端令牌`
     if (client.tokenEndpointAuthMethod === 'none' && !refreshToken.isSenderConstrained()) {
       return true;
     }
 
-    // rotate if the token is nearing expiration (it's beyond 70% of its lifetime)
+    // 当超过剩余时间的70%后，刷新令牌
     return refreshToken.ttlPercentagePassed() >= 70;
   },
-
 
   /*
    * whitelistedJWA
@@ -2178,7 +2141,6 @@ const DEFAULTS = {
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
 
-
     /*
      * whitelistedJWA.introspectionEndpointAuthSigningAlgValues
      *
@@ -2199,7 +2161,6 @@ const DEFAULTS = {
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
 
-
     /*
      * whitelistedJWA.revocationEndpointAuthSigningAlgValues
      *
@@ -2219,7 +2180,6 @@ const DEFAULTS = {
     revocationEndpointAuthSigningAlgValues: [
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
-
 
     /*
      * whitelistedJWA.idTokenSigningAlgValues
@@ -2242,7 +2202,6 @@ const DEFAULTS = {
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
 
-
     /*
      * whitelistedJWA.requestObjectSigningAlgValues
      *
@@ -2263,7 +2222,6 @@ const DEFAULTS = {
     requestObjectSigningAlgValues: [
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
-
 
     /*
      * whitelistedJWA.userinfoSigningAlgValues
@@ -2286,7 +2244,6 @@ const DEFAULTS = {
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
 
-
     /*
      * whitelistedJWA.introspectionSigningAlgValues
      *
@@ -2308,7 +2265,6 @@ const DEFAULTS = {
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
 
-
     /*
      * whitelistedJWA.authorizationSigningAlgValues
      *
@@ -2328,7 +2284,6 @@ const DEFAULTS = {
     authorizationSigningAlgValues: [
       'HS256', 'RS256', 'PS256', 'ES256', 'EdDSA',
     ],
-
 
     /*
      * whitelistedJWA.idTokenEncryptionAlgValues
@@ -2354,7 +2309,6 @@ const DEFAULTS = {
     idTokenEncryptionAlgValues: [
       'A128KW', 'A256KW', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A256KW', 'RSA-OAEP',
     ],
-
 
     /*
      * whitelistedJWA.requestObjectEncryptionAlgValues
@@ -2382,7 +2336,6 @@ const DEFAULTS = {
       'A128KW', 'A256KW', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A256KW', 'RSA-OAEP',
     ],
 
-
     /*
      * whitelistedJWA.userinfoEncryptionAlgValues
      *
@@ -2407,7 +2360,6 @@ const DEFAULTS = {
     userinfoEncryptionAlgValues: [
       'A128KW', 'A256KW', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A256KW', 'RSA-OAEP',
     ],
-
 
     /*
      * whitelistedJWA.introspectionEncryptionAlgValues
@@ -2435,7 +2387,6 @@ const DEFAULTS = {
       'A128KW', 'A256KW', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A256KW', 'RSA-OAEP',
     ],
 
-
     /*
      * whitelistedJWA.authorizationEncryptionAlgValues
      *
@@ -2462,7 +2413,6 @@ const DEFAULTS = {
       'A128KW', 'A256KW', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A256KW', 'RSA-OAEP',
     ],
 
-
     /*
      * whitelistedJWA.idTokenEncryptionEncValues
      *
@@ -2478,7 +2428,6 @@ const DEFAULTS = {
     idTokenEncryptionEncValues: [
       'A128CBC-HS256', 'A128GCM', 'A256CBC-HS512', 'A256GCM',
     ],
-
 
     /*
      * whitelistedJWA.requestObjectEncryptionEncValues
@@ -2497,7 +2446,6 @@ const DEFAULTS = {
       'A128CBC-HS256', 'A128GCM', 'A256CBC-HS512', 'A256GCM',
     ],
 
-
     /*
      * whitelistedJWA.userinfoEncryptionEncValues
      *
@@ -2513,7 +2461,6 @@ const DEFAULTS = {
     userinfoEncryptionEncValues: [
       'A128CBC-HS256', 'A128GCM', 'A256CBC-HS512', 'A256GCM',
     ],
-
 
     /*
      * whitelistedJWA.introspectionEncryptionEncValues
@@ -2531,7 +2478,6 @@ const DEFAULTS = {
       'A128CBC-HS256', 'A128GCM', 'A256CBC-HS512', 'A256GCM',
     ],
 
-
     /*
      * whitelistedJWA.authorizationEncryptionEncValues
      *
@@ -2547,7 +2493,6 @@ const DEFAULTS = {
     authorizationEncryptionEncValues: [
       'A128CBC-HS256', 'A128GCM', 'A256CBC-HS512', 'A256GCM',
     ],
-
 
     /*
      * whitelistedJWA.dPoPSigningAlgValues

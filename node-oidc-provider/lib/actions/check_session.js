@@ -1,3 +1,7 @@
+/**
+ * @Description: 检查session接口
+ * @Date: 2024/7/26 09:43
+ */
 const instance = require('../helpers/weak_cache');
 const { json: parseBody } = require('../shared/selective_body');
 const noCache = require('../shared/no_cache');
@@ -30,7 +34,6 @@ module.exports = {
 <meta charset="UTF-8">
 <title>Session Management - OP iframe</title>
 <script ${nonce ? `nonce="${nonce}" ` : ''}src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.3.1/sha256.js" integrity="sha256-NyuvLfsvfCfE+ceV6/W19H+qVp3M8c9FzAgj72CW39w=" crossorigin="anonymous"></script>
-<script ${nonce ? `nonce="${nonce}" ` : ''}src="https://polyfill.io/v3/polyfill.min.js?flags=gated&features=fetch"></script>
 </head>
 <body>
 

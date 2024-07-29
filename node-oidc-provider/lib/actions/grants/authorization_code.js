@@ -1,3 +1,8 @@
+/**
+ * @Description: 授权码授权方式
+ * @Date: 2024/7/26 10:08
+ */
+
 const get = require('lodash/get');
 const uidToGrantId = require('debug')('oidc-provider:uid');
 
@@ -9,6 +14,12 @@ const revokeGrant = require('../../helpers/revoke_grant');
 
 const gty = 'authorization_code';
 
+/**
+ * 授权码模式中间件
+ * @param ctx
+ * @param next
+ * @return {Promise<void>}
+ */
 module.exports.handler = async function authorizationCodeHandler(ctx, next) {
   const {
     issueRefreshToken,

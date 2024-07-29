@@ -1,3 +1,8 @@
+/**
+ * @Description: 初始化OAuth2.0服务器，基于KOA
+ * @Date: 2024/7/26 10:09
+ */
+
 const { strict: assert } = require('assert');
 const querystring = require('querystring');
 

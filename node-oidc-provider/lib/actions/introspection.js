@@ -16,6 +16,11 @@ const { InvalidRequest } = require('../helpers/errors');
 const introspectable = new Set(['AccessToken', 'ClientCredentials', 'RefreshToken']);
 const JWT = 'application/jwt';
 
+/**
+ * 令牌检查中间件
+ * @param provider
+ * @return {((function(*, *): Promise<void>)|{}|*|(function(*, *): Promise<*>))[]}
+ */
 module.exports = function introspectionAction(provider) {
   const { params: authParams, middleware: tokenAuth } = getTokenAuth(provider, 'introspection');
   const PARAM_LIST = new Set(['token', 'token_type_hint', ...authParams]);
@@ -50,6 +55,9 @@ module.exports = function introspectionAction(provider) {
     return results.find((found) => !!found);
   }
 
+  /**
+   * 从这里开始执行逻辑
+   */
   return [
     noCache,
     parseBody,
@@ -104,9 +112,9 @@ module.exports = function introspectionAction(provider) {
     },
 
     async function renderTokenResponse(ctx, next) {
-      const { params } = ctx.oidc;
+      const { params } = ctx.oidc; // param是body的穿参
 
-      ctx.body = { active: false };
+      ctx.body = { active: false }; // 响应默认值
 
       let token;
 

@@ -12,26 +12,44 @@ const { Provider } = require('../lib'); // require('oidc-provider');
 const Account = require('./support/account');
 const configuration = require('./support/configuration');
 const routes = require('./routes/express');
+const RedisAdapter = require('./adapters/redis');
 
 const { PORT = 3000, ISSUER = `http://localhost:${PORT}` } = process.env;
 configuration.findAccount = Account.findAccount;
+const provider = new Provider(ISSUER, { adapter: RedisAdapter, ...configuration });
+const handleClientAuthErrors = ({ headers: { authorization }, oidc: { body, client } }, err) => {
+  console.log('debug', err);
+  if (err.statusCode === 401 && err.message === 'invalid_client') {
+    console.log(err);
+  }
+};
+provider.on('grant.error', handleClientAuthErrors);
+provider.on('introspection.error', handleClientAuthErrors);
+provider.on('revocation.error', handleClientAuthErrors);
 
 const app = express();
-app.use(helmet());
-
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use((req, res, next) => {
+  const orig = res.render;
+  // you'll probably want to use a full-blown render engine capable of layouts
+  res.render = (view, locals) => {
+    app.render(view, locals, (err, html) => {
+      if (err) throw err;
+      orig.call(res, '_layout', {
+        ...locals,
+        body: html,
+      });
+    });
+  };
+  next();
+});
 
 let server;
 (async () => {
-  let adapter;
-  if (process.env.MONGODB_URI) {
-    adapter = require('./adapters/mongodb'); // eslint-disable-line global-require
-    await adapter.connect();
-  }
-
-  const provider = new Provider(ISSUER, { adapter, ...configuration });
-
   if (process.env.NODE_ENV === 'production') {
     app.enable('trust proxy');
     provider.proxy = true;

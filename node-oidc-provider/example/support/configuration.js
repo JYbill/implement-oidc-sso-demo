@@ -1,15 +1,15 @@
-const { interactionPolicy: { Prompt, base: policy } } = require('../../lib'); // require('oidc-provider');
+const { interactionPolicy: { Prompt, base: policy }, errors } = require('../../lib'); // require('oidc-provider');
 
-// copies the default policy, already has login and consent prompt policies
+// 复制默认策略，已有登录和同意提示策略
 const interactions = policy();
 
-// create a requestable prompt with no implicit checks
+// 创建一个没有隐式检查的可请求提示
 const selectAccount = new Prompt({
   name: 'select_account',
   requestable: true,
 });
 
-// add to index 0, order goes select_account > login > consent
+// selectAccount为第一位，顺序：select_account > login > consent
 interactions.add(selectAccount, 0);
 
 module.exports = {
@@ -26,6 +26,13 @@ module.exports = {
       grant_types: ['refresh_token', 'authorization_code'],
       redirect_uris: ['http://localhost:8080/app1.html', 'http://localhost:8080/app2.html'],
     },
+    {
+      client_id: 'app',
+      client_secret: 'pwd',
+      grant_types: ['client_credentials'],
+      redirect_uris: ['http://localhost:8080/app1.html'],
+      response_types: [],
+    },
   ],
   interactions: {
     policy: interactions,
@@ -34,7 +41,7 @@ module.exports = {
     },
   },
   cookies: {
-    long: { signed: true, maxAge: (1 * 24 * 60 * 60) * 1000 }, // 1 day in ms
+    long: { signed: true, maxAge: (24 * 60 * 60) * 1000 }, // 1 day in ms
     short: { signed: true },
     keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
   },
@@ -50,11 +57,46 @@ module.exports = {
       enabled: true,
       keepHeaders: false,
     },
-    devInteractions: { enabled: false }, // defaults to true
 
+    // 允许启用"grant_type=client_credentials"
+    clientCredentials: {
+      enabled: true,
+    },
+
+    // 跳过输入用户名、密码阶段，为false则不跳过，必须用户手动输入。默认为true
+    devInteractions: { enabled: false },
+
+    // 启用设备授权
     deviceFlow: { enabled: true }, // defaults to false
-    introspection: { enabled: true }, // defaults to false
-    revocation: { enabled: true }, // defaults to false
+
+    // 令牌自我检查
+    /**
+     * 默认值
+     * allowedPolicy: async function introspectionAllowedPolicy(ctx, client, token) {}
+     * enabled: false
+     */
+    introspection: { enabled: true },
+
+    // 令牌撤销，默认false
+    revocation: { enabled: true },
+
+    // 启用资源指示器功能
+    resourceIndicators: {
+      enabled: true,
+      getResourceServerInfo(ctx, resourceIndicator) {
+        console.log('resourceIndicator', resourceIndicator);
+        if (resourceIndicator === 'urn:api') {
+          return {
+            scope: 'read',
+            audience: 'urn:api',
+            accessTokenTTL: 60 * 60, // 1 hour
+            accessTokenFormat: 'jwt',
+          };
+        }
+
+        throw new errors.InvalidToken('不合法的token');
+      },
+    },
   },
   jwks: {
     keys: [
@@ -80,10 +122,10 @@ module.exports = {
     ],
   },
   ttl: {
-    AccessToken: 1 * 60 * 60, // 1 hour in seconds
+    AccessToken: 60 * 60, // 1 hour in seconds
     AuthorizationCode: 10 * 60, // 10 minutes in seconds
-    IdToken: 1 * 60 * 60, // 1 hour in seconds
+    IdToken: 60 * 60, // 1 hour in seconds
     DeviceCode: 10 * 60, // 10 minutes in seconds
-    RefreshToken: 1 * 24 * 60 * 60, // 1 day in seconds
+    RefreshToken: 24 * 60 * 60, // 1 day in seconds
   },
 };

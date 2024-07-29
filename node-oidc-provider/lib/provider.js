@@ -204,9 +204,10 @@ class Provider extends events.EventEmitter {
   }
 
   /**
-   * 获取交互并对交互结果进行插入数据，最终返回重定向地址
+   * 获取交互并对交互结果进行插入数据，返回请求的url值
    * @name interactionResult
    * @api public
+   * @return {URL} 发起请求的请求的url值
    */
   async interactionResult(req, res, result, { mergeWithLastSubmission = true } = {}) {
     const interaction = await getInteraction.call(this, req, res);

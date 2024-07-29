@@ -20,30 +20,24 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
   encodeURIComponent(value) { return keys.has(value) ? `<strong>${value}</strong>` : value; },
 });
 
+/**
+ * 停用缓存中间件
+ * @param req
+ * @param res
+ * @param next
+ */
+function setNoCache(req, res, next) {
+  res.set('Pragma', 'no-cache');
+  res.set('Cache-Control', 'no-cache, no-store');
+  next();
+}
+
 module.exports = (app, provider) => {
   const { constructor: { errors: { SessionNotFound } } } = provider;
 
-  app.use((req, res, next) => {
-    const orig = res.render;
-    // you'll probably want to use a full blown render engine capable of layouts
-    res.render = (view, locals) => {
-      app.render(view, locals, (err, html) => {
-        if (err) throw err;
-        orig.call(res, '_layout', {
-          ...locals,
-          body: html,
-        });
-      });
-    };
-    next();
-  });
-
-  function setNoCache(req, res, next) {
-    res.set('Pragma', 'no-cache');
-    res.set('Cache-Control', 'no-cache, no-store');
-    next();
-  }
-
+  /**
+   * 请求授权接口
+   */
   app.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
       const {
@@ -54,7 +48,6 @@ module.exports = (app, provider) => {
       } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id);
-      console.log('prompt', prompt);
 
       switch (prompt.name) {
         case 'select_account': {
@@ -87,7 +80,7 @@ module.exports = (app, provider) => {
             uid,
             details: prompt.details,
             params,
-            title: 'Sign-in',
+            title: 'Sign-In',
             session: session ? debug(session) : undefined,
             dbg: {
               params: debug(params),
@@ -104,6 +97,7 @@ module.exports = (app, provider) => {
             details: prompt.details,
             params,
             title: 'Authorize',
+            scope: params.scope.replace(/ /g, ', '),
             session: session ? debug(session) : undefined,
             dbg: {
               params: debug(params),
@@ -164,7 +158,6 @@ module.exports = (app, provider) => {
       next(err);
     }
   });
-
 
   /**
    * interaction.ejs进行授权完成后，提交到接口

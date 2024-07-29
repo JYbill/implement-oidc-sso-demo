@@ -2,6 +2,8 @@ const store = new Map();
 const logins = new Map();
 const nanoid = require('nanoid');
 
+const { query } = require('./database');
+
 class Account {
   /**
    * 初始化Account账号，id不存在默认用nanoid随机id，并存储在Map中
@@ -88,12 +90,27 @@ class Account {
     return logins.get(login);
   }
 
+  /**
+   * 触发时期
+   * 1. 用户登录，此时未授权token是undefined
+   * 2. 校验授权码时，会查询
+   * @param ctx koa上下文
+   * @param id 用户名
+   * @param token
+   * @return {Promise<any>}
+   */
   static async findAccount(ctx, id, token) { // eslint-disable-line no-unused-vars
-    // token is a reference to the token used for which a given account is being loaded,
-    //   it is undefined in scenarios where account claims are returned from authorization endpoint
-    // ctx is the koa request context
-    if (!store.get(id)) new Account(id); // eslint-disable-line no-new
-    return store.get(id);
+    /* if (!store.get(id)) new Account(id); // eslint-disable-line no-new
+    return store.get(id); */
+    const [user] = await query('select * from account where username = :username limit 1;', { username: id });
+    console.log('findAccount', id, user);
+    if (!user) return null;
+    return {
+      accountId: user.id,
+      async claims(use, scope) {
+        return { sub: user.id };
+      },
+    };
   }
 }
 
